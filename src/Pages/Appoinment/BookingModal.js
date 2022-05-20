@@ -24,11 +24,12 @@ const BookingModal = ({ date,treatment,setTreatment }) => {
           <form onSubmit={handleForm} className='grid grid-cols-1 justify-items-center gap-5 mt-3' action="">
 
             <input type="text" disabled value={format(date ,'PP')} placeholder="Type here" className="input input-bordered input-accent w-full max-w-xs" />
-            <select name='slot' className="select select-secondary w-full max-w-xs">
-                {
-                slots.map(slot => <option value={slot}>{slot}</option>)
-                }
-            </select>
+            <select name="slot" className="select select-bordered w-full max-w-xs">
+                
+                        {
+                          slots?.map(slot => console.log(slot) )
+                        }
+              </select>
             <input type="text" name='name' placeholder="Your Name" className="input input-bordered input-accent w-full max-w-xs" />
 
             {/* email */}
