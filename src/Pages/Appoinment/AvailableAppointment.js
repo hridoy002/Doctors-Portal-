@@ -15,7 +15,7 @@ const AvailableAppointment = ({date}) => {
         <div className='my-20'>
             <h4 className='text-center text-secondary text-lg'>Available Services on {format(date ,'PP')} </h4>
             <h5 className='text-center text-gray-600'>Please Select a Service</h5>
-            <div className='grid grid-cols-1 lg:grid-cols-3 gap-5'>
+            <div className='grid justify-items-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
                 {services.map(service => <Service key={service._id} service={service} setTreatment={setTreatment}/>)}
             </div>
             {treatment && <BookingModal date={date} treatment={treatment} setTreatment ={setTreatment}/>}
