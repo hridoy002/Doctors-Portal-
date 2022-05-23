@@ -1,19 +1,53 @@
+import {toast } from 'react-toastify';
 import { format } from 'date-fns';
-import React from 'react';
+import React, { useRef } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.init';
 
-const BookingModal = ({ date,treatment,setTreatment }) => {
+const BookingModal = ({ date, treatment, setTreatment,refetch }) => {
   const [user] = useAuthState(auth);
-  const {_id,name,slots} = treatment;
-  const handleForm =event =>{
+  const { _id, name, slots } = treatment;
+
+
+  const handleForm = event => {
     event.preventDefault();
-    const clientName = event.target.name.value;
-    const email = event.target.email.value;
+
     const phone = event.target.phone.value;
     const slot = event.target.slot.value;
-    console.log(name,clientName,email,phone,slot)
-    setTreatment(null);
+    const formatedDate = format(date, "PP");
+    
+    const booking = {
+      treatmentId: _id,
+      treatment: name,
+      date: formatedDate,
+      slot,
+      patientName: user.displayName,
+      patient: user.email,
+      phone: phone
+    }
+    console.log(booking)
+    fetch('http://localhost:5000/booking', {
+      method: "POST",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify(booking)
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data) 
+        if(data.success){
+          toast(`Your Appointment is Booked,  ${formatedDate} at ${slot} `)
+        }
+        else{
+          toast.error(`Your already have an appointment `)
+        }
+
+        refetch();
+        // for clean modal input field 
+        setTreatment(null);
+      })
+
   }
   return (
     <div>
@@ -26,14 +60,14 @@ const BookingModal = ({ date,treatment,setTreatment }) => {
           {/* form  */}
           <form onSubmit={handleForm} className='grid grid-cols-1 justify-items-center gap-5 mt-3' action="">
 
-            <input type="text" disabled value={format(date ,'PP')} placeholder="Type here" className="input input-bordered input-accent w-full max-w-xs" />
+            <input type="text" disabled value={format(date, 'PP')} placeholder="Type here" className="input input-bordered input-accent w-full max-w-xs" />
             <select name="slot" className="select select-bordered w-full max-w-xs">
-                
-                        {
-                          slots?.map((slot,index) => <option value={slot} key={index}>{slot}</option> )
-                        }
-              </select>
-            <input type="text" disabled  name='name' value={user?.displayName || ''} className="input input-bordered input-accent w-full max-w-xs" />
+
+              {
+                slots?.map((slot, index) => <option value={slot} key={index}>{slot}</option>)
+              }
+            </select>
+            <input type="text" disabled name='name' value={user?.displayName || ''} className="input input-bordered input-accent w-full max-w-xs" />
 
             {/* email */}
             <input type="text" name='email' disabled value={user?.email || ''} className="input input-bordered input-accent w-full max-w-xs" />

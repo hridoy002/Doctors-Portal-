@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useCreateUserWithEmailAndPassword, useSignInWithGoogle, useUpdateProfile } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.init';
 import { Link, useNavigate } from "react-router-dom";
+import useToken from '../Hooks/useToken';
 
 
 const Register = () => {
@@ -21,8 +22,10 @@ const Register = () => {
         error,
     ] = useCreateUserWithEmailAndPassword(auth);
 
-    if (user || googleUser) {
-        console.log(user || googleUser)
+    const [token] = useToken(user || googleUser)
+
+    if (token) {
+        navigate('/appointment');
     }
 
     // error 
@@ -38,11 +41,11 @@ const Register = () => {
 
     // login form handle 
     const onSubmit = async data => {
-        console.log(data)
+
         await createUserWithEmailAndPassword(data.email, data.password);
         await updateProfile({ displayName: data.name });
         console.log()
-        navigate('/');
+        
     };
     return (
         <div className='h-screen flex justify-center items-center'>

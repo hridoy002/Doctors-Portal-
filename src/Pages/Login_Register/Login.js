@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSignInWithEmailAndPassword, useSignInWithGoogle } from 'react-firebase-hooks/auth';
 import auth from '../../firebase.init'
 import { useForm } from "react-hook-form";
 import Loading from '../Shared/Loading';
-import { Link,useNavigate,useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import useToken from '../Hooks/useToken';
 
 
 
@@ -12,8 +13,8 @@ const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-     // redirect 
-     const from = location.state?.from?.pathname || '/'
+    // redirect 
+    const from = location.state?.from?.pathname || '/'
     const [signInWithGoogle, googleUser, googleLoading, googleError] = useSignInWithGoogle(auth);
     const { register, formState: { errors }, handleSubmit } = useForm();
     const [
@@ -21,35 +22,38 @@ const Login = () => {
         user,
         loading,
         error,
-      ] = useSignInWithEmailAndPassword(auth);
+    ] = useSignInWithEmailAndPassword(auth);
+    const [token] = useToken(user || googleUser); 
 
-    if (user || googleUser) {
-        console.log(user ||googleUser);
+    useEffect(() => {
+        if (token) {
+            // console.log(user || googleUser);
 
-        navigate(from, { replace: true });
-    }
+            navigate(from, { replace: true });
+        }
+    }, [token , from, navigate])
 
     // error 
     let errorMessage;
-    if(error || googleError){
+    if (error || googleError) {
         errorMessage = <p>{error?.message || googleError?.message}</p>
     }
 
     // loading 
-    if(loading || googleLoading){
+    if (loading || googleLoading) {
         return <Loading />;
     }
 
     // login form handle 
     const onSubmit = data => {
         console.log(data)
-        signInWithEmailAndPassword(data.email,data.password)
+        signInWithEmailAndPassword(data.email, data.password)
     };
 
-   
+
     return (
-        <div className='h-screen flex justify-center items-center'>
-            <div className="card w-96 bg-base-100 shadow-xl flex">
+        <div className='h-full flex justify-center items-center'>
+            <div className="my-24 card w-96 bg-base-100 shadow-xl flex ">
                 <div className="card-body">
                     <h2 className="text-center text-2xl font-bold">Login</h2>
 
@@ -113,7 +117,7 @@ const Login = () => {
                         <input className='btn w-full max-w-xs text-white' type="submit" value="Login" />
                     </form>
 
-                        <p><small> New In Doctors Portal? <Link to="/register" className='text-secondary'> Create New Account</Link></small></p> 
+                    <p><small> New In Doctors Portal? <Link to="/register" className='text-secondary'> Create New Account</Link></small></p>
 
                     <div className="divider">OR</div>
                     <button onClick={() => signInWithGoogle()} className="btn btn-outline btn-accent">Continue with Google</button>
